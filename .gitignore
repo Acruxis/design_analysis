@@ -1,0 +1,15 @@
+.vscode
+build
+out
+leak.log
+nohup.out
+mk
+test
+temp
+temp.txt
+.temp
+exec_design
+test_files
+test.gds
+test.oas
+test.svg
