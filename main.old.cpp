@@ -20,7 +20,8 @@ void example_polygons(Cell &out_cell)
 
 void example_holes(Cell &out_cell)
 {
-    Vec2 points[] = {{0, 0}, {5, 0}, {5, 5}, {0, 5}, {0, 0}, {2, 2}, {2, 3}, {3, 3}, {3, 2}, {2, 2}};
+    // Vec2 points[] = {{0, 0}, {5, 0}, {5, 5}, {0, 5}, {0, 0}, {2, 2}, {2, 3}, {3, 3}, {3, 2}, {2, 2}};
+    Vec2 points[] = {{0, 5}, {0, 0}, {5, 0}, {5, 5}, {0, 5}, {2, 2}, {2, 3}, {3, 3}, {3, 2}, {2, 2}};
     Polygon *poly = (Polygon *)allocate_clear(sizeof(Polygon));
     poly->point_array.extend({.capacity = 0, .count = COUNT(points), .items = points});
     out_cell.polygon_array.append(poly);
@@ -154,14 +155,14 @@ int main(int argc, char *argv[])
     Polygon rect = rectangle(Vec2{0, 0}, Vec2{2, 1}, make_tag(0, 0));
     cell.polygon_array.append(&rect);
 
-    example_polygons(cell);
+    // example_polygons(cell);
     example_holes(cell);
-    example_circles(cell);
-    example_curves1(cell);
-    example_curves2(cell);
-    example_curves3(cell);
-    example_transformations(cell);
-    example_layerdatatype(cell);
+    // example_circles(cell);
+    // example_curves1(cell);
+    // example_curves2(cell);
+    // example_curves3(cell);
+    // example_transformations(cell);
+    // example_layerdatatype(cell);
 
     lib.write_gds("test.gds", 0, NULL);
     lib.write_oas("test.oas", 0, 6, OASIS_CONFIG_DETECT_ALL);
