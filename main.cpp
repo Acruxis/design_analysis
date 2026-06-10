@@ -1,87 +1,95 @@
 #include <stdio.h>
+#include <string>
 
+#include "spdlog/spdlog.h"
 #include "gdstk/gdstk.hpp"
 
+using namespace std;
 using namespace gdstk;
+
+void PrintUsage(int exit_code)
+{
+    printf(R"(Usage: exec_design design_file
+    design_file       must be gds/oas
+
+Example:
+    ./exec_design test.gds
+    ./exec_design test.oas
+
+)");
+    exit(exit_code);
+}
 
 int main(int argc, char *argv[])
 {
-    Tag t_full_etch = make_tag(1, 3);
-    Tag t_partial_etch = make_tag(2, 3);
-    Tag t_lift_off = make_tag(0, 7);
+    if (argc != 2)
+    {
+        spdlog::error("Lack of neccessary input\n");
+        PrintUsage(-1);
+    }
 
-    char lib_name[] = "library";
-    Library lib = {.name = lib_name, .unit = 1e-6, .precision = 1e-9};
+    ErrorCode err_code;
 
-    // CONTACT
+    string input_file = argv[1];
 
-    char contact_cell_name[] = "CONTACT";
-    Cell contact_cell = {.name = contact_cell_name};
-    lib.cell_array.append(&contact_cell);
+    Library lib = {};
 
-    Polygon contact_poly[4];
-    contact_poly[0] = rectangle(Vec2{-3, -3}, Vec2{3, 3}, t_full_etch);
-    contact_poly[1] = rectangle(Vec2{-5, -3}, Vec2{-3, 3}, t_partial_etch);
-    contact_poly[2] = rectangle(Vec2{5, -3}, Vec2{3, 3}, t_partial_etch);
-    contact_poly[3] = regular_polygon(Vec2{0, 0}, 2, 6, 0, t_lift_off);
+    if (input_file.size() >= 4)
+    {
+        if (input_file.compare(input_file.size() - 4, 4, ".gds") == 0)
+        {
+            lib = read_gds(input_file.c_str(), 0, 1e-9, NULL, &err_code);
+        }
+        else if (input_file.compare(input_file.size() - 4, 4, ".oas") == 0)
+        {
+            lib = read_oas(input_file.c_str(), 0, 1e-9, &err_code);
+        }
+        else
+        {
+            spdlog::error("Unspported input_file {}", input_file);
+            PrintUsage(-1);
+        }
+    }
+    else
+    {
+        spdlog::error("Unspported input_file {}\n", input_file);
+        PrintUsage(-1);
+    }
 
-    Polygon *p[] = {contact_poly, contact_poly + 1, contact_poly + 2, contact_poly + 3};
-    contact_cell.polygon_array.extend({.capacity = 0, .count = COUNT(p), .items = p});
 
-    // DEVICE
+    if (err_code != ErrorCode::NoError)
+    {
+        spdlog::error("Failed to open the input file {} {}\n", input_file, (int)err_code);
+        exit(EXIT_FAILURE);
+    }
 
-    char device_cell_name[] = "DEVICE";
-    Cell device_cell = {.name = device_cell_name};
-    lib.cell_array.append(&device_cell);
+    lib.print(true);
+    printf("\n");
 
-    Vec2 cutout_points[] = {{0, 0}, {5, 0}, {5, 5}, {0, 5}, {0, 0}, {2, 2}, {2, 3}, {3, 3}, {3, 2}, {2, 2}};
-    Polygon cutout_poly = {};
-    cutout_poly.point_array.extend(
-        {.capacity = 0, .count = COUNT(cutout_points), .items = cutout_points});
-    device_cell.polygon_array.append(&cutout_poly);
+    for (size_t i_cell = 0; i_cell < lib.cell_array.count; i_cell++)
+    {
+        Cell *cell = lib.cell_array[i_cell];
 
-    Reference contact_ref1 = {
-        .type = ReferenceType::Cell,
-        .cell = &contact_cell,
-        .origin = Vec2{3.5, 1},
-        .magnification = 0.25,
-    };
-    device_cell.reference_array.append(&contact_ref1);
+        cell->print(true);
+        printf("\n");
 
-    Reference contact_ref2 = {
-        .type = ReferenceType::Cell,
-        .cell = &contact_cell,
-        .origin = Vec2{1, 3.5},
-        .rotation = M_PI / 2,
-        .magnification = 0.25,
-    };
-    device_cell.reference_array.append(&contact_ref2);
+        Array<Reference *> array_ref;
+        cell->flatten(true, array_ref);
+        for (size_t i_ref = 0; i_ref < array_ref.count; i_ref++)
+        {
+            Reference *ref = array_ref[i_ref];
+            ref->print();
+            printf("\n");
+        }
 
-    // MAIN
+        for (size_t i_poly = 0; i_poly < cell->polygon_array.count; i_poly++)
+        {
+            Polygon *poly = cell->polygon_array[i_poly];
 
-    char main_cell_name[] = "MAIN";
-    Cell main_cell = {.name = main_cell_name};
-    lib.cell_array.append(&main_cell);
+            poly->print(true);
+            printf("\n");
+        }
+    }
 
-    Reference device_ref = {
-        .type = ReferenceType::Cell,
-        .cell = &device_cell,
-        .magnification = 1,
-        .repetition = {RepetitionType::Rectangular, 3, 2, Vec2{6, 7}},
-    };
-    main_cell.reference_array.append(&device_ref);
-
-    // Output
-
-    lib.write_gds("test.gds", 0, NULL);
-
-    for (uint64_t i = 0; i < COUNT(contact_poly); i++)
-        contact_poly[i].clear();
-    cutout_poly.clear();
-    contact_cell.polygon_array.clear();
-    device_cell.polygon_array.clear();
-    device_cell.reference_array.clear();
-    main_cell.reference_array.clear();
-    lib.cell_array.clear();
     return 0;
 }

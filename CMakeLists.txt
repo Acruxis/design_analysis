@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.26)
 Project(design_analysis)
 # file(GLOB_RECURSE SRC "./src/*.cpp" "./src/*.c")
 
-include_directories("./include")
+include_directories("./"
+                    "./include")
 link_directories("./lib/gdstk")
 list(APPEND STATIC_LIBS libgdstk.a)
 

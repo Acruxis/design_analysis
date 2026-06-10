@@ -1,6 +1,6 @@
 # Design Analysis By GDSTK<br/>
 
-## Main Struct<br/>
+## Main Struct<br>
 
 ```PliantText
 Library (版图大库 / 根节点)
@@ -28,7 +28,7 @@ Library (版图大库 / 根节点)
                      ├── rotation, magnify, x_reflection (旋转、放大、翻转等仿射变换参数)
                      └── repetition (用于 AREF 阵列引用的重复排列参数)
 ```
-<br/>
+<br>
 
 ## Support Struct
 
@@ -50,3 +50,7 @@ gdstk 辅助工具箱 (计算级数据结构)
       ├── 成员：capacity (容量), count (当前元素数), items (动态内存指针)
       └── 几乎作为所有核心数据结构（point_array, polygon_array）的底层容器
 ```
+
+## Dependency
+
+qhull libz  pthread
