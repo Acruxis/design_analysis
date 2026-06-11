@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
         PrintUsage(-1);
     }
 
-    ErrorCode err_code;
+    ErrorCode err_code = ErrorCode::NoError;
 
     string input_file = argv[1];
 
@@ -38,11 +38,11 @@ int main(int argc, char *argv[])
     {
         if (input_file.compare(input_file.size() - 4, 4, ".gds") == 0)
         {
-            lib = read_gds(input_file.c_str(), 0, 1e-9, NULL, &err_code);
+            lib = read_gds(input_file.c_str(), 0, 1e-3, NULL, &err_code);
         }
         else if (input_file.compare(input_file.size() - 4, 4, ".oas") == 0)
         {
-            lib = read_oas(input_file.c_str(), 0, 1e-9, &err_code);
+            lib = read_oas(input_file.c_str(), 0, 1e-3, &err_code);
         }
         else
         {
@@ -70,26 +70,30 @@ int main(int argc, char *argv[])
     {
         Cell *cell = lib.cell_array[i_cell];
 
+        spdlog::info("Cell {}\n", i_cell);
+
         cell->print(true);
         printf("\n");
 
-        Array<Reference *> array_ref;
-        cell->flatten(true, array_ref);
-        for (size_t i_ref = 0; i_ref < array_ref.count; i_ref++)
-        {
-            Reference *ref = array_ref[i_ref];
-            ref->print();
-            printf("\n");
-        }
+        // Array<Reference *> array_ref;
+        // cell->flatten(true, array_ref);
+        // array_ref.clear();
+        // for (size_t i_ref = 0; i_ref < array_ref.count; i_ref++)
+        // {
+        //     Reference *ref = array_ref[i_ref];
+        //     ref->print();
+        //     spdlog::info("Ref {}\n", i_ref);
+        //     printf("\n");
+        // }
+        
+        // for (size_t i_poly = 0; i_poly < cell->polygon_array.count; i_poly++)
+        // {
+        //     Polygon *poly = cell->polygon_array[i_poly];
+        //     spdlog::info("Poly {}\n", i_poly);
 
-        for (size_t i_poly = 0; i_poly < cell->polygon_array.count; i_poly++)
-        {
-            Polygon *poly = cell->polygon_array[i_poly];
-
-            poly->print(true);
-            printf("\n");
-        }
+        //     poly->print(true);
+        //     printf("\n");
+        // }
     }
-
     return 0;
 }

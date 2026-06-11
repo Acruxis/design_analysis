@@ -157,16 +157,16 @@ int main(int argc, char *argv[])
 
     // example_polygons(cell);
     example_holes(cell);
-    // example_circles(cell);
+    example_circles(cell);
     // example_curves1(cell);
     // example_curves2(cell);
     // example_curves3(cell);
     // example_transformations(cell);
     // example_layerdatatype(cell);
 
-    lib.write_gds("test.gds", 0, NULL);
+    // lib.write_gds("test.gds", 0, NULL);
     lib.write_oas("test.oas", 0, 6, OASIS_CONFIG_DETECT_ALL);
-    cell.write_svg("test.svg", 10, 6, NULL, NULL, "#222222", 5, true, NULL);
+    // cell.write_svg("test.svg", 10, 6, NULL, NULL, "#222222", 5, true, NULL);
 
     rect.clear();
     cell.clear();
