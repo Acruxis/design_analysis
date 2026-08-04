@@ -54,5 +54,7 @@ gdstk 辅助工具箱 (计算级数据结构)
 ## Dependency
 
 qhull libz  pthread
-sudo apt install qhull-dev
+
+sudo apt install libqhull-dev
+
 sudo apt install zlib1g-dev
